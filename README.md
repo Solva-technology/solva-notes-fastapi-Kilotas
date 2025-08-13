@@ -1,74 +1,72 @@
-[![Open in Visual Studio Code](https://classroom.github.com/assets/open-in-vscode-2e0aaae1b6195c2367325f4f02e2d04e9abb55f0b24a779b69b11b9e10269abc.svg)](https://classroom.github.com/online_ide?assignment_repo_id=20046107&assignment_repo_type=AssignmentRepo)
-# Note App
+# Секретный ключ для сессий и подписи данных 
+SECRET_KEY="KSEUtdh6od27s5hNBWyoMvpyZI7qQ07fq8eyC6HQx1eI5NY1T9v4Jcp5gc1p56Ra2nwwXKjmS85N5LSj-2py1Q"
 
-## Техническое задание
+# DSN для подключения backend к Postgres внутри docker-сети
+DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/postgres
 
-Необходимо разработать CRUD-приложение **Note App** на базе **FastAPI**, в котором реализован функционал для работы с заметками пользователей. Все данные должны храниться в базе данных **PostgreSQL**. 
+# Данные для контейнера Postgres (docker-compose)
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=postgres
 
-Приложение должно быть упаковано в **Docker** и запускаться с помощью `docker-compose`.
 
----
+.
+├─ app/
+│  ├─ main.py                    # FastAPI + middleware + маршруты + setup_admin
+│  ├─ admin.py                   # SQLAdmin, доступ только для is_admin
+│  ├─ api/                       # ваши API-роуты
+│  ├─ core/
+│  │  ├─ config.py               # Pydantic Settings (SECRET_KEY, DATABASE_URL и т.д.)
+│  │  └─ security.py             # hash/verify password, JWT (если используется)
+│  ├─ db/
+│  │  ├─ models.py               # модели User, Note, Category
+│  │  └─ session.py              # async engine/session, init_db() c ретраями
+│  └─ ...
+├─ entrypoint.sh                 # ожидание готовности БД и запуск uvicorn
+├─ docker-compose.yml
+├─ Dockerfile
+├─ requirements.txt
+└─ README.md
 
-## Технологический стек
+2) Запусти проект 
+docker compose down -v
+docker compose build --no-cache
+docker compose up -d
+docker compose logs -f backend
 
-- Python + FastAPI
-- PostgreSQL
-- Alembic (для миграций)
-- SQLAdmin (админка)
-- Docker + Docker Compose
+Полезные URL
 
----
+API ping: http://localhost:8000/ping
 
-## Модели данных
+Swagger UI: http://localhost:8000/docs
 
-Приложение должно содержать следующие сущности:
+Админ-панель SQLAdmin: http://localhost:8000/admin
 
-- **User** – пользователь (аутентификация, авторизация).
-- **Category** – категории заметок.
-- **Note** – заметки.
+Если в docker-compose.yml меняешь порт backend на хосте — подставь свой.
 
----
 
-## Требования к функциональности
+Админ-панель и доступ только для is_admin
+В app/admin.py используется кастомный AdminAuth (sqladmin), который:
 
-### Пользователи:
-- Регистрация и вход в систему.
-- Пользователь **может выполнять CRUD только над своими заметками**.
-- Пользователь **может видеть только свои заметки**.
-- Пользователь **может создавать заметку только в существующей категории**.
-- Пользователь **не может создавать категории**.
+показывает форму логина /admin/login;
 
-### Администратор:
-- Может видеть, редактировать и удалять **любые заметки и категории**.
-- Может **создавать новые категории**.
-- Имеет доступ ко **всем данным**.
-- Имеет доступ к **админ-панели (SQLAdmin)**, в которой должны быть зарегистрированы все модели.
+пускает внутрь только пользователя с is_admin=True;
 
----
+кладёт admin_user_id в сессию после успешного входа;
 
-## Миграции
+на каждом запросе к /admin проверяет, что пользователь всё ещё админ.
 
-- Подключить **Alembic** для создания и применения миграций базы данных.
+В app/main.py подключён SessionMiddleware с твоим SECRET_KEY.
 
----
+Чтобы зайти в админку, в БД должен существовать пользователь с is_admin = TRUE и корректным hashed_password.
 
-## Развёртывание
+При старте, если APP_DEBUG=True (или у тебя вызван init_db()), выполняется:
 
-Приложение должно быть полностью упаковано в **Docker-контейнеры**.
-- Использовать `docker-compose` для запуска БД и API.
-- Прописать зависимости в `requirements.txt`.
+ожидание готовности БД (ретраи);
 
----
+создание таблиц Base.metadata.create_all() (идемпотентно);
 
-## Документация
+(опционально) сидер админа из .env (если включён у тебя в startup).
 
-- Реализовать автогенерируемую документацию по адресу: `/docs` (Swagger UI).
-- Описать основные эндпоинты и способы работы с API в этом `README.md` (инструкцию по запуску и взаимодействию с API студент пишет самостоятельно).
 
----
 
-## Дополнительно
-
-- Все пароли должны храниться в хэшированном виде.
-- Использовать Pydantic-схемы для валидации входных и выходных данных.
-- Использовать зависимости (Depends) для разграничения доступа к данным.
