@@ -20,16 +20,21 @@ async def register(data: RegisterIn, session: AsyncSession = Depends(get_session
     if existing.scalar_one_or_none():
         raise HTTPException(status_code=400, detail="Email already registered")
 
-    user = User(email=email, hashed_password=hash_password(data.password), is_admin=False)
+    user = User(
+        email=email, hashed_password=hash_password(data.password), is_admin=False
+    )
     session.add(user)
     await session.commit()
     await session.refresh(user)
     return user
 
+
 @router.post("/login", response_model=TokenOut)
-async def login(form: OAuth2PasswordRequestForm = Depends(),
-                session: AsyncSession = Depends(get_session)):
-    email = form.username.strip().lower()                  # ← НОВОЕ
+async def login(
+    form: OAuth2PasswordRequestForm = Depends(),
+    session: AsyncSession = Depends(get_session),
+):
+    email = form.username.strip().lower()  # ← НОВОЕ
     password = form.password
 
     res = await session.execute(select(User).where(User.email == email))

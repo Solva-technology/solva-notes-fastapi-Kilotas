@@ -10,11 +10,14 @@ app = FastAPI(title="Note App")
 app.add_middleware(SessionMiddleware, secret_key=settings.SECRET_KEY)
 setup_admin(app)
 
+
 @app.get("/ping")
 async def ping():
     return {"status": "ok"}
 
+
 app.include_router(api_router)
+
 
 @app.on_event("startup")
 async def on_startup():

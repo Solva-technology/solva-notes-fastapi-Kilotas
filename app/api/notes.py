@@ -9,8 +9,10 @@ from app.api.deps import get_current_user
 
 router = APIRouter(prefix="/notes", tags=["notes"])
 
+
 def can_access(note: Note, user: User) -> bool:
     return note.owner_id == user.id or user.is_admin
+
 
 @router.get("/", response_model=list[NoteOut])
 async def list_notes(
@@ -23,6 +25,7 @@ async def list_notes(
     res = await session.execute(stmt.order_by(Note.id.desc()))
     return res.scalars().all()
 
+
 @router.get("/{note_id}", response_model=NoteOut)
 async def get_note(
     note_id: int,
@@ -34,6 +37,7 @@ async def get_note(
     if not note or not can_access(note, user):
         raise HTTPException(status_code=404, detail="Note not found")
     return note
+
 
 @router.post("/", response_model=NoteOut, status_code=201)
 async def create_note(
@@ -57,6 +61,7 @@ async def create_note(
     await session.refresh(note)
     return note
 
+
 @router.put("/{note_id}", response_model=NoteOut)
 async def update_note(
     note_id: int,
@@ -74,7 +79,9 @@ async def update_note(
     if data.content is not None:
         note.content = data.content
     if data.category_id is not None:
-        r = await session.execute(select(Category).where(Category.id == data.category_id))
+        r = await session.execute(
+            select(Category).where(Category.id == data.category_id)
+        )
         if not r.scalar_one_or_none():
             raise HTTPException(status_code=400, detail="Category does not exist")
         note.category_id = data.category_id
@@ -82,6 +89,7 @@ async def update_note(
     await session.commit()
     await session.refresh(note)
     return note
+
 
 @router.delete("/{note_id}", status_code=204)
 async def delete_note(

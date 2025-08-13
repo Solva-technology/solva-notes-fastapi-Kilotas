@@ -9,7 +9,7 @@ POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
 POSTGRES_DB=postgres
 
-
+````` 
 .
 ├─ app/
 │  ├─ main.py                    # FastAPI + middleware + маршруты + setup_admin
@@ -27,6 +27,7 @@ POSTGRES_DB=postgres
 ├─ Dockerfile
 ├─ requirements.txt
 └─ README.md
+````` 
 
 2) Запусти проект 
 docker compose down -v

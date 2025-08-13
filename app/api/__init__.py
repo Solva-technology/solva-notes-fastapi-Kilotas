@@ -7,4 +7,3 @@ router = APIRouter(prefix="/api/v1")
 router.include_router(auth_router)
 router.include_router(categories_router)
 router.include_router(notes_router)
-

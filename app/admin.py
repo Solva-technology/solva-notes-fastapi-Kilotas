@@ -12,6 +12,7 @@ from app.db.session import engine, AsyncSessionLocal
 
 SESSION_KEY = "admin_user_id"
 
+
 class AdminAuth(AuthenticationBackend):
     def __init__(self, secret_key: str):
         super().__init__(secret_key=secret_key)
@@ -22,7 +23,9 @@ class AdminAuth(AuthenticationBackend):
         password = (form.get("password") or "").strip()
 
         async with AsyncSessionLocal() as session:
-            user = (await session.execute(select(User).where(User.email == email))).scalar_one_or_none()
+            user = (
+                await session.execute(select(User).where(User.email == email))
+            ).scalar_one_or_none()
 
         if not user or not user.is_admin:
             return False
@@ -44,17 +47,23 @@ class AdminAuth(AuthenticationBackend):
             user = await session.get(User, uid)
         return bool(user and user.is_admin)
 
+
 class UserAdmin(ModelView, model=User):
     column_list = [User.id, User.email, User.is_admin]
+
 
 class CategoryAdmin(ModelView, model=Category):
     column_list = [Category.id, Category.name]
 
+
 class NoteAdmin(ModelView, model=Note):
     column_list = [Note.id, Note.title, Note.owner_id, Note.category_id]
 
+
 def setup_admin(app):
-    admin = Admin(app, engine, authentication_backend=AdminAuth(secret_key=settings.SECRET_KEY))
+    admin = Admin(
+        app, engine, authentication_backend=AdminAuth(secret_key=settings.SECRET_KEY)
+    )
     admin.add_view(UserAdmin)
     admin.add_view(CategoryAdmin)
     admin.add_view(NoteAdmin)

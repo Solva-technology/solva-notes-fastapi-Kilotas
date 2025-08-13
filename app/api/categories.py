@@ -9,15 +9,17 @@ from app.api.deps import require_admin
 
 router = APIRouter(prefix="/categories", tags=["categories"])
 
+
 @router.get("/", response_model=list[CategoryOut])
 async def list_categories(session: AsyncSession = Depends(get_session)):
     res = await session.execute(select(Category).order_by(Category.name))
     return res.scalars().all()
 
+
 @router.post("/", response_model=CategoryOut, status_code=201)
 async def create_category(
     data: CategoryCreate,
-    admin = Depends(require_admin),
+    admin=Depends(require_admin),
     session: AsyncSession = Depends(get_session),
 ):
     c = Category(name=data.name)
@@ -26,11 +28,12 @@ async def create_category(
     await session.refresh(c)
     return c
 
+
 @router.put("/{category_id}", response_model=CategoryOut)
 async def update_category(
     category_id: int,
     data: CategoryUpdate,
-    admin = Depends(require_admin),
+    admin=Depends(require_admin),
     session: AsyncSession = Depends(get_session),
 ):
     res = await session.execute(select(Category).where(Category.id == category_id))
@@ -42,10 +45,11 @@ async def update_category(
     await session.refresh(c)
     return c
 
+
 @router.delete("/{category_id}", status_code=204)
 async def delete_category(
     category_id: int,
-    admin = Depends(require_admin),
+    admin=Depends(require_admin),
     session: AsyncSession = Depends(get_session),
 ):
     res = await session.execute(select(Category).where(Category.id == category_id))

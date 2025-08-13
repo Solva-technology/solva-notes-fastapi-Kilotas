@@ -18,6 +18,7 @@ AsyncSessionLocal = async_sessionmaker(
 
 logger = logging.getLogger(__name__)
 
+
 async def get_session() -> AsyncGenerator[AsyncSession, None]:
     async with AsyncSessionLocal() as session:
         yield session
