@@ -11,22 +11,22 @@
 ## Author
 **Alen Omarov**  
 
-# ========== App ==========
+# App 
 APP_NAME=Note App
 APP_VERSION=0.1.0
 APP_DEBUG=true        # false на проде
 
-# ========== Security ==========
+#  Security
 SECRET_KEY=KSEUtdh6od27s5hNBWyoMvpyZI7qQ07fq8eyC6HQx1eI5NY1T9v4Jcp5gc1p56Ra2nwwXKjmS85N5LSj-2py1Q
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=60
 ADMIN_SESSION_KEY=admin_user_id
 
-# ========== Database (для приложения) ==========
+# Database (для приложения) 
 # Хост db — это имя контейнера Postgres из docker-compose
 DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/postgres
 
-# ========== Database bootstrap (для образа postgres) ==========
+#  Database bootstrap (для образа postgres) 
 # Эти переменные читает контейнер postgres при старте
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
