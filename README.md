@@ -10,7 +10,7 @@
 
 ## Author
 **Alen Omarov**  
-
+````` 
 # App 
 APP_NAME=Note App
 APP_VERSION=0.1.0
@@ -31,6 +31,9 @@ DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/postgres
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
 POSTGRES_DB=postgres
+
+
+````` 
 
 ````` 
 
