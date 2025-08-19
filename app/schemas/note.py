@@ -1,11 +1,16 @@
-from pydantic import BaseModel, ConfigDict
 from typing import Optional
 
+from pydantic import BaseModel, ConfigDict
 
-class NoteCreate(BaseModel):
+
+class NoteBase(BaseModel):
     title: str
     content: str
     category_id: int
+
+
+class NoteCreate(NoteBase):
+    pass
 
 
 class NoteUpdate(BaseModel):
@@ -14,10 +19,7 @@ class NoteUpdate(BaseModel):
     category_id: Optional[int] = None
 
 
-class NoteOut(BaseModel):
+class NoteOut(NoteBase):
     id: int
-    title: str
-    content: str
     owner_id: int
-    category_id: int
     model_config = ConfigDict(from_attributes=True)

@@ -1,11 +1,16 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlite3 import IntegrityError
 
-from app.db.session import get_session
-from app.db.models import Category
-from app.schemas.category import CategoryCreate, CategoryUpdate, CategoryOut
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import select
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.ext.asyncio import AsyncSession
+from starlette import status
+
 from app.api.deps import require_admin
+from app.api.utils.category_utils import get_category_or_404
+from app.db.models import Category
+from app.db.session import get_session, logger
+from app.schemas.category import CategoryCreate, CategoryOut, CategoryUpdate
 
 router = APIRouter(prefix="/categories", tags=["categories"])
 
@@ -16,50 +21,110 @@ async def list_categories(session: AsyncSession = Depends(get_session)):
     return res.scalars().all()
 
 
-@router.post("/", response_model=CategoryOut, status_code=201)
+@router.post("/", response_model=CategoryOut, status_code=status.HTTP_201_CREATED)
 async def create_category(
     data: CategoryCreate,
     admin=Depends(require_admin),
     session: AsyncSession = Depends(get_session),
 ):
-    c = Category(name=data.name)
-    session.add(c)
-    await session.commit()
-    await session.refresh(c)
-    return c
+    name = (data.name or "").strip()
+
+    exists = await session.execute(select(Category.id).where(Category.name == name))
+    if exists.scalar_one_or_none():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Category with this name already exists",
+        )
+
+    category = Category(name=name)
+    session.add(category)
+    try:
+        await session.commit()
+    except IntegrityError:
+        await session.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Category with this name already exists",
+        )
+
+    await session.refresh(category)
+    logger.info(
+        "admin_created_category",
+        extra={"admin_id": admin.id, "category_id": category.id, "name": category.name},
+    )
+
+    return category
 
 
-@router.put("/{category_id}", response_model=CategoryOut)
+router.put("/{category_id}", response_model=CategoryOut)
+
+
 async def update_category(
-    category_id: int,
     data: CategoryUpdate,
     admin=Depends(require_admin),
     session: AsyncSession = Depends(get_session),
+    category: Category = Depends(get_category_or_404),
 ):
-    res = await session.execute(select(Category).where(Category.id == category_id))
-    c = res.scalar_one_or_none()
-    if not c:
-        raise HTTPException(status_code=404, detail="Category not found")
-    c.name = data.name
-    await session.commit()
-    await session.refresh(c)
-    return c
+    old_name = category.name
 
+    if data.name is not None:
+        category.name = data.name
 
-@router.delete("/{category_id}", status_code=204)
-async def delete_category(
-    category_id: int,
-    admin=Depends(require_admin),
-    session: AsyncSession = Depends(get_session),
-):
-    res = await session.execute(select(Category).where(Category.id == category_id))
-    c = res.scalar_one_or_none()
-    if not c:
-        raise HTTPException(status_code=404, detail="Category not found")
-    await session.delete(c)
     try:
         await session.commit()
-    except Exception:
+    except IntegrityError:
         await session.rollback()
-        raise HTTPException(status_code=409, detail="Category is in use")
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Category name already exists",
+        )
+
+    await session.refresh(category)
+
+    logger.info(
+        "admin_updated_category",
+        extra={
+            "admin_id": admin.id,
+            "category_id": category.id,
+            "old_name": old_name,
+            "new_name": category.name,
+        },
+    )
+
+    return category
+
+
+@router.delete("/{category_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_category(
+    admin=Depends(require_admin),
+    session: AsyncSession = Depends(get_session),
+    category: Category = Depends(get_category_or_404),
+):
+
+    category_id = category.id
+    category_name = category.name
+
+    try:
+        await session.delete(category)
+        await session.commit()
+    except IntegrityError:
+        await session.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="Category is in use"
+        )
+    except SQLAlchemyError:
+        await session.rollback()
+        logger.exception(
+            "DB error while deleting category",
+            extra={"admin_id": admin.id, "category_id": category_id},
+        )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to delete category",
+        )
+
+    logger.info(
+        "admin_deleted_category",
+        extra={"admin_id": admin.id, "category_id": category_id, "name": category_name},
+    )
     return None

@@ -1,10 +1,11 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from app.db.session import get_session
-from app.db.models import User
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.core.security import decode_access_token
+from app.db.models import User
+from app.db.session import get_session, logger
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
@@ -14,6 +15,9 @@ async def get_current_user(
     session: AsyncSession = Depends(get_session),
 ) -> User:
     try:
+        logger.debug(
+            "auth_token_prefix", extra={"prefix": token[:12] if token else None}
+        )
         payload = decode_access_token(token)
         sub = payload.get("sub")
         if not sub:

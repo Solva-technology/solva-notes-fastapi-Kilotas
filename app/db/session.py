@@ -3,7 +3,9 @@ import logging
 from sqlite3 import OperationalError
 from typing import AsyncGenerator
 
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
+                                    create_async_engine)
+
 from app.core.config import settings
 from app.db.models import Base
 
@@ -25,7 +27,6 @@ async def get_session() -> AsyncGenerator[AsyncSession, None]:
 
 
 async def init_db(retries: int = 30, delay: float = 1.0) -> None:
-    """Надёжное создание схемы с ретраями."""
     for i in range(1, retries + 1):
         try:
             async with engine.begin() as conn:
