@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}{{ note.title }}{% endblock %}
+{% block content %}
+<h1>{{ note.title }}</h1>
+<p><i>Категория ID:</i> {{ note.category_id }}</p>
+<pre style="white-space: pre-wrap">{{ note.content }}</pre>
+<p>
+  <a href="/notes/{{ note.id }}/edit">Изменить</a>
+</p>
+<form method="post" action="/notes/{{ note.id }}/delete" onsubmit="return confirm('Удалить заметку?');">
+  <button type="submit">Удалить</button>
+</form>
+{% endblock %}

@@ -100,21 +100,37 @@ class AdminAuth(AuthenticationBackend):
         email = (form.get("username") or "").strip()
         password = (form.get("password") or "").strip()
 
-        async with AsyncSessionLocal() as session:
-            user = (
-                await session.execute(select(User).where(User.email == email))
-            ).scalar_one_or_none()
+        logger.info(f"Попытка входа: email={email}")
 
-        if not user or not user.is_admin:
-            return False
-        if not verify_password(password, user.hashed_password):
-            return False
+        try:
+            async with AsyncSessionLocal() as session:
+                user = (
+                    await session.execute(select(User).where(User.email == email))
+                ).scalar_one_or_none()
 
-        request.session[settings.ADMIN_SESSION_KEY] = user.id
-        return True
+            if not user:
+                logger.warning(f"Вход отклонён: пользователь {email} не найден")
+                return False
+
+            if not user.is_admin:
+                logger.warning(f"Вход отклонён: {email} не админ")
+                return False
+
+            if not verify_password(password, user.hashed_password):
+                logger.warning(f"Вход отклонён: неверный пароль для {email}")
+                return False
+
+            request.session[settings.ADMIN_SESSION_KEY] = user.id
+            logger.info(f"Успешный вход: {email}")
+            return True
+
+        except Exception as e:
+            logger.error(f"Ошибка при входе {email}: {e}", exc_info=True)
+            return False
 
     async def logout(self, request: Request) -> bool:
-        request.session.pop(settings.ADMIN_SESSION_KEY, None)
+        user_id = request.session.pop(settings.ADMIN_SESSION_KEY, None)
+        logger.info(f"Админ {user_id} вышел из системы")
         return True
 
     @limiter.limit("5/minute")
