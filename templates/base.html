@@ -1,28 +1,38 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="UTF-8">
   <title>{% block title %}Note App{% endblock %}</title>
-  <link rel="stylesheet" href="{{ url_for('static', path='/css/style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}">
 </head>
 <body>
-<header>
-  <nav>
-<a href="/">Главная</a>
-<a href="/ui/notes">Мои заметки</a>
-<a href="/ui/notes/new">Новая заметка</a>
+  <header>
+    <nav>
+      <a href="{{ url_for('index') }}" class="brand">
+      <img src="{{ url_for('static', path='img/download.jpg') }}" alt="Note App" width="28" height="28">
+      <span>Note App</span>
+      </a>
+      <a href="{{ url_for('index')}}">Главная</a>
+      <a href="{{ url_for('notes_list') }}">Мои заметки</a>
+      <a href="{{ url_for('notes_new_page') }}">Новая заметка</a>
+      <a href="{{ url_for('chat_page')}}">Чат</a>
+      {% if user %}
+        <span>{{ user.email }}</span>
+        <a href="/logout">Выйти</a>
+      {% else %}
+        <a href="/login-html">Вход</a>
+        <a href="/register-html">Регистрация</a>
+      {% endif %}
+    </nav>
+  </header>
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer><small>&copy; 2025 Note App</small></footer>
 
 
-    {% if user %}
-      <span>{{ user.email }}</span>
-      <a href="/logout">Выйти</a>
-    {% else %}
-      <a href="/login-html">Вход</a>
-      <a href="/register-html">Регистрация</a>
-    {% endif %}
-  </nav>
-</header>
-<main>{% block content %}{% endblock %}</main>
-<footer><small>&copy; 2025 Note App</small></footer>
+  {% block extra_scripts %}{% endblock %}
 </body>
 </html>

@@ -1,17 +1,17 @@
 import logging
-from fastapi import APIRouter, Request, Depends, Form
+
+from fastapi import APIRouter, Depends, Form, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
-from starlette import status
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from app.core.limiting import limiter
-from app.db.session import get_session
-from app.db.models import User
-from app.api.auth import get_user_by_email
-from app.core.security import hash_password, verify_password
-from app.api.utils.user_utils import normalize_email
 from fastapi.templating import Jinja2Templates
+from sqlalchemy.ext.asyncio import AsyncSession
+from starlette import status
 
+from app.api.auth import get_user_by_email
+from app.api.utils.user_utils import normalize_email
+from app.core.limiting import limiter
+from app.core.security import hash_password, verify_password
+from app.db.models import User
+from app.db.session import get_session
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -19,7 +19,9 @@ router = APIRouter()
 templates = Jinja2Templates(directory="templates")
 
 
-async def current_user(request: Request, session: AsyncSession = Depends(get_session)) -> User | None:
+async def current_user(
+    request: Request, session: AsyncSession = Depends(get_session)
+) -> User | None:
     uid = request.session.get("user_id")
     return await session.get(User, uid) if uid else None
 
@@ -32,10 +34,10 @@ async def login_page(request: Request, user: User | None = Depends(current_user)
 
 @router.post("/login-html")
 async def login_submit(
-        request: Request,
-        email: str = Form(...),
-        password: str = Form(...),
-        session: AsyncSession = Depends(get_session),
+    request: Request,
+    email: str = Form(...),
+    password: str = Form(...),
+    session: AsyncSession = Depends(get_session),
 ):
     user = await get_user_by_email(session, normalize_email(email))
     if not user or not verify_password(password, user.hashed_password):
@@ -54,15 +56,17 @@ async def login_submit(
 @router.get("/register-html", response_class=HTMLResponse)
 async def register_page(request: Request, user: User | None = Depends(current_user)):
     logger.info("Register page accessed")
-    return templates.TemplateResponse("register.html", {"request": request, "user": user})
+    return templates.TemplateResponse(
+        "register.html", {"request": request, "user": user}
+    )
 
 
 @router.post("/register-html")
 async def register_submit(
-        request: Request,
-        email: str = Form(...),
-        password: str = Form(...),
-        session: AsyncSession = Depends(get_session),
+    request: Request,
+    email: str = Form(...),
+    password: str = Form(...),
+    session: AsyncSession = Depends(get_session),
 ):
     email = normalize_email(email)
     if await get_user_by_email(session, email):

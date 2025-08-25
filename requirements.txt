@@ -31,4 +31,5 @@ psycopg2-binary>=2.9
 greenlet>=3.0.0
 slowapi>=0.1.9
 python-multipart>=0.0.9
+redis>=5.0
 

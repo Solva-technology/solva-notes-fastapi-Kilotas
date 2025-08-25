@@ -6,6 +6,10 @@ class Settings(BaseSettings):
     APP_VERSION: str
     APP_DEBUG: bool
 
+    REDIS_HOST: str
+    REDIS_PORT: int
+    REDIS_PASSWORD: str
+    REDIS_USERNAME: str = "default"
     DATABASE_URL: str
     SECRET_KEY: str
     ALGORITHM: str

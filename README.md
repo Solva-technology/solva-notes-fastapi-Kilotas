@@ -33,7 +33,70 @@ POSTGRES_PASSWORD=postgres
 POSTGRES_DB=postgres
 
 
+REDIS_HOST=redis-13284.c52.us-east-1-4.ec2.redns.redis-cloud.com
+REDIS_PORT=13284
+REDIS_PASSWORD=ceiPNogfzO4GJ8vd7c1V40zHn0WkSxhP
+
 ````` 
+
+
+GET /chat — страница анонимного чата (HTML).
+
+WS /ws/anon-chat — WebSocket-подключение для чата.
+
+GET /static/* — раздача статики (CSS/JS/изображения).
+
+(Служебно) GET /docs — Swagger UI; GET /openapi.json — спецификация.
+
+Формат сохранения истории чата в Redis
+
+Ключ списка: chat:history
+
+Команды при записи: LPUSH chat:history <json>, затем LTRIM chat:history 0 99
+(храним до 100 последних событий/сообщений)
+
+JSON-структура элемента списка
+
+{
+  "type": "message",             // "message" или "system"
+  "timestamp": "2025-08-15T12:34:56Z",
+  "nickname": "Guest-1234",      // пусто для system-сообщений
+  "text": "Привет всем!"
+}
+
+
+Как протестировать чат
+
+Запусти проект:
+
+docker compose up --build
+
+
+Открой две вкладки браузера на http://localhost:8000/chat.
+
+Введи разные никнеймы и отправь пару сообщений.
+
+Убедись, что:
+
+сообщения видны в обеих вкладках;
+
+при входе/выходе появляется system-сообщение;
+
+после перезагрузки страницы показывается последние 20 записей истории.
+
+Диагностика (если что-то не работает)
+
+Статика:
+curl -I http://localhost:8000/static/css/style.css → должно быть 200 OK.
+
+WebSocket:
+в DevTools → Network → ws: подключение к /ws/anon-chat должно открываться.
+
+Redis:
+docker compose exec redis redis-cli ping → PONG.
+
+Логи backend:
+docker compose logs -f backend — ищи Connected to Redis и ошибки WebSocket.
 
 ````` 
 

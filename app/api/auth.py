@@ -12,8 +12,7 @@ from app.api.utils.user_utils import get_user_by_email, normalize_email
 from app.core.antibrute import log
 from app.core.config import settings
 from app.core.limiting import limiter
-from app.core.security import (create_access_token, hash_password,
-                               verify_password)
+from app.core.security import create_access_token, hash_password, verify_password
 from app.db.models import User
 from app.db.session import AsyncSessionLocal, get_session, logger
 from app.schemas.auth import RegisterIn, TokenOut

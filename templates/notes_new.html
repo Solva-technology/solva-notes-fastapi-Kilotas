@@ -1,9 +1,14 @@
 {% extends "base.html" %}
 {% block title %}Новая заметка{% endblock %}
+
 {% block content %}
 <h1>Новая заметка</h1>
-<form method="post" action="/notes/new">
-  <label>Заголовок<br><input type="text" name="title" required></label><br><br>
+
+<form method="post" action="{{ url_for('notes_new_submit') }}">
+  <label>Заголовок<br>
+    <input type="text" name="title" required>
+  </label><br><br>
+
   <label>Категория<br>
     <select name="category_id" required>
       {% for c in categories %}
@@ -11,9 +16,11 @@
       {% endfor %}
     </select>
   </label><br><br>
+
   <label>Содержимое<br>
     <textarea name="content" rows="8" cols="60" required></textarea>
   </label><br><br>
+
   <button type="submit">Создать</button>
 </form>
 {% endblock %}
