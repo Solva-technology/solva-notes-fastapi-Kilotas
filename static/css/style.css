@@ -1,0 +1,175 @@
+/* =========================
+   Глобальные переменные
+   ========================= */
+:root{
+  --bg: #0f1115;
+  --panel: #151922;
+  --panel-2:#1b2130;
+  --text: #e7eaf3;
+  --muted:#9aa3b2;
+  --primary:#3b82f6;
+  --primary-700:#2563eb;
+  --border:#2a3345;
+  --success:#10b981;
+  --warning:#f59e0b;
+  --danger:#ef4444;
+  --radius:12px;
+  --shadow: 0 10px 25px rgba(0,0,0,.25);
+}
+
+/* =========================
+   Базовые стили/сброс
+   ========================= */
+*{ box-sizing:border-box; }
+html,body{ height:100%; }
+body{
+  margin:0;
+  font: 16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Calibri,"Helvetica Neue",Arial,sans-serif;
+  color:var(--text);
+  background:linear-gradient(180deg, #0c0f14 0%, #0f1115 100%);
+}
+a{ color:var(--primary); text-decoration:none; }
+a:hover{ text-decoration:underline; }
+img{ max-width:100%; display:block; }
+
+/* =========================
+   Каркас страницы
+   ========================= */
+header{
+  background:rgba(21,25,34,.7);
+  backdrop-filter: blur(10px);
+  border-bottom:1px solid var(--border);
+  position:sticky; top:0; z-index:50;
+}
+header nav{
+  max-width:1100px; margin:0 auto; padding:12px 20px;
+  display:flex; gap:16px; align-items:center; flex-wrap:wrap;
+}
+header nav a{
+  color:var(--text); padding:8px 12px; border-radius:10px;
+}
+header nav a:hover{ background:var(--panel-2); text-decoration:none; }
+
+main{
+  max-width:1100px; margin:24px auto; padding:0 20px 60px;
+}
+footer{
+  border-top:1px solid var(--border);
+  background:rgba(21,25,34,.6);
+  padding:20px; text-align:center; color:var(--muted);
+}
+
+/* =========================
+   Компоненты: карточки/панели
+   ========================= */
+.card{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:18px;
+}
+.card + .card{ margin-top:16px; }
+
+/* =========================
+   Формы / поля / кнопки
+   ========================= */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea, select{
+  width:100%; padding:12px 14px; border-radius:10px;
+  background:var(--panel-2); color:var(--text);
+  border:1px solid var(--border); outline:0;
+  transition: border .15s ease;
+}
+input::placeholder, textarea::placeholder{ color:#7d8796; }
+input:focus, textarea:focus, select:focus{ border-color:var(--primary); }
+
+button, .btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  padding:10px 16px; border-radius:10px; border:0; cursor:pointer;
+  background:var(--primary); color:white; font-weight:600;
+  transition: transform .05s ease, background .15s ease;
+}
+button:hover, .btn:hover{ background:var(--primary-700); }
+button:active, .btn:active{ transform: translateY(1px); }
+.btn-secondary{ background:#374151; }
+.btn-secondary:hover{ background:#4b5563; }
+.btn-danger{ background:var(--danger); }
+.btn-danger:hover{ background:#dc2626; }
+
+/* =========================
+   Таблицы/списки (на заметки и т.п.)
+   ========================= */
+.table{
+  width:100%; border-collapse: collapse; overflow:hidden;
+  border-radius:12px; border:1px solid var(--border);
+}
+.table th, .table td{
+  padding:12px 14px; text-align:left; border-bottom:1px solid var(--border);
+}
+.table thead th{
+  background:var(--panel-2); color:#cbd5e1; font-weight:700;
+}
+.table tbody tr:hover{ background:#1a2130; }
+
+/* =========================
+   Алерты / подсказки
+   ========================= */
+.alert{ padding:12px 14px; border-radius:10px; border:1px solid var(--border); }
+.alert-success{ background: rgba(16,185,129,.12); border-color: rgba(16,185,129,.35); }
+.alert-warning{ background: rgba(245,158,11,.12); border-color: rgba(245,158,11,.35); }
+.alert-danger { background: rgba(239,68,68,.12);  border-color: rgba(239,68,68,.35); }
+
+/* =========================
+   Ютилити-классы
+   ========================= */
+.container{ max-width:1100px; margin:0 auto; padding:0 20px; }
+.mt-1{ margin-top:8px; } .mt-2{ margin-top:16px; } .mt-3{ margin-top:24px; }
+.mb-1{ margin-bottom:8px; } .mb-2{ margin-bottom:16px; } .mb-3{ margin-bottom:24px; }
+.grid{ display:grid; gap:16px; }
+.grid-2{ grid-template-columns:repeat(2,1fr); }
+.grid-3{ grid-template-columns:repeat(3,1fr); }
+
+/* =========================
+   Секция Чата (универсальные классы)
+   ========================= */
+.chat-container{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:18px;
+}
+.chat-container h2{ margin:0 0 12px 0; }
+.chat-messages{
+  height: 420px; overflow-y:auto;
+  border:1px solid var(--border); border-radius:12px;
+  background: #0e1420; padding:14px; margin-bottom:16px;
+}
+.chat-form{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.message{ margin-bottom:10px; padding:10px; border-radius:10px; background:#0f1624; }
+.message.message{ border-left:4px solid var(--primary); }
+.message.system{  border-left:4px solid #6c757d; background:#101826; color:#c7ceda; }
+.timestamp{ color:#7d8796; font-size:.85em; margin-right:4px; }
+.nickname{ color:var(--primary); font-weight:700; margin-right:4px; }
+
+/* инпуты чата поуже */
+#nickname-input, #message-input{
+  width:300px;
+}
+
+/* =========================
+   Адаптив
+   ========================= */
+@media (max-width: 640px){
+  header nav{ gap:8px; }
+  .grid-2, .grid-3{ grid-template-columns:1fr; }
+  #nickname-input, #message-input{ width:100%; }
+  .chat-messages{ height: 60vh; }
+}
+
+nav { display:flex; align-items:center; gap:16px; }
+nav .brand { display:flex; align-items:center; gap:8px; font-weight:700; }
+nav .brand img { display:block; border-radius:6px; }

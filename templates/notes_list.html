@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Мои заметки{% endblock %}
+
+{% block content %}
+<h1>Мои заметки</h1>
+
+<p><a href="{{ url_for('notes_new_page') }}">+ Новая заметка</a></p>
+
+{% if notes %}
+  <ul>
+    {% for n in notes %}
+      <li><a href="{{ url_for('notes_detail', note_id=n.id) }}">{{ n.title }}</a></li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>Пока пусто. <a href="{{ url_for('notes_new_page') }}">Создать первую</a></p>
+{% endif %}
+
+{% endblock %}
+
