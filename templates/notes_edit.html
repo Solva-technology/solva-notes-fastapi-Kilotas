@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Редактировать заметку - Note App{% endblock %}
+
+{% block content %}
+<h1>Редактировать заметку</h1>
+
+<form method="post" action="{{ url_for('notes_edit_submit', note_id=note.id) }}">
+    <div>
+        <label for="title">Заголовок:</label>
+        <input type="text" id="title" name="title" value="{{ note.title }}" required>
+    </div>
+
+    <div>
+        <label for="content">Содержание:</label>
+        <textarea id="content" name="content" rows="5" required>{{ note.content }}</textarea>
+    </div>
+
+    <div>
+        <label for="category_id">Категория:</label>
+        <select id="category_id" name="category_id" required>
+            <option value="">Выберите категорию</option>
+            {% for category in categories %}
+                <option value="{{ category.id }}" {% if category.id == note.category_id %}selected{% endif %}>
+                    {{ category.name }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div>
+        <button type="submit">Сохранить изменения</button>
+        <a href="{{ url_for('notes_detail', note_id=note.id) }}">Отмена</a>
+    </div>
+</form>
+{% endblock %}

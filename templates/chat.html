@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Анонимный чат - Note App{% endblock %}
+
+{% block content %}
+<div class="chat-container">
+  <h2>Анонимный чат</h2>
+
+  <div id="chat-messages" class="chat-messages"></div>
+
+  <div id="username-form" class="chat-form">
+    <h3>Введите ваш никнейм</h3>
+    <input type="text" id="nickname-input" placeholder="Ваш никнейм" required>
+    <button id="join-btn">Присоединиться к чату</button>
+  </div>
+
+  <div id="message-form" class="chat-form" style="display:none;">
+    <input type="text" id="message-input" placeholder="Введите сообщение..." required>
+    <button id="send-btn">Отправить</button>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', path='css/chat.css') }}">
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', path='js/chat.js') }}"></script>
+{% endblock %}

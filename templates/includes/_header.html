@@ -1,0 +1,21 @@
+<header>
+  <nav>
+    <a href="{{ url_for('index') }}" class="brand">
+      <img src="{{ url_for('static', path='img/download.jpg') }}" alt="Note App" width="28" height="28">
+      <span>Note App</span>
+    </a>
+
+    <a href="{{ url_for('index') }}">Главная</a>
+    <a href="{{ url_for('notes_list') }}">Мои заметки</a>
+    <a href="{{ url_for('notes_new_page') }}">Новая заметка</a>
+    <a href="{{ url_for('chat_page') }}">Чат</a>
+
+    {% if user %}
+      <span>{{ user.email }}</span>
+      <a href="/logout">Выйти</a>
+    {% else %}
+      <a href="/login-html">Вход</a>
+      <a href="/register-html">Регистрация</a>
+    {% endif %}
+  </nav>
+</header>
