@@ -6,6 +6,11 @@ import time
 from collections import deque
 from typing import Deque, Dict
 
+from app.core.constants import (
+    ANTIBRUTE_MAX_ATTEMPTS, ANTIBRUTE_WINDOW_SEC,
+    ANTIBRUTE_BLOCK_SEC, ANTIBRUTE_FAIL_DELAY
+)
+
 log = logging.getLogger("admin_auth.antibrute")
 
 
@@ -18,10 +23,10 @@ class AntiBrute:
 
     def __init__(
         self,
-        max_attempts: int = 5,
-        window_sec: int = 60,
-        block_sec: int = 300,
-        fail_delay: float = 0.4,
+        max_attempts: int = ANTIBRUTE_MAX_ATTEMPTS,
+        window_sec: int = ANTIBRUTE_WINDOW_SEC,
+        block_sec: int = ANTIBRUTE_BLOCK_SEC,
+        fail_delay: float = ANTIBRUTE_FAIL_DELAY,
     ) -> None:
         self.MAX_ATTEMPTS = max_attempts
         self.WINDOW_SEC = window_sec

@@ -8,7 +8,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_user
-from app.api.utils.user_utils import get_user_by_email, normalize_email
+from app.api.user import get_user_by_email, normalize_email
 from app.core.antibrute import log
 from app.core.config import settings
 from app.core.limiting import limiter

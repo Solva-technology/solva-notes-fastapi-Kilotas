@@ -49,13 +49,11 @@ async def update_note(
     note: Note = Depends(get_note_or_404),
     session: AsyncSession = Depends(get_session),
 ):
-    if data.title is not None:
-        note.title = data.title
-    if data.content is not None:
-        note.content = data.content
-    if data.category_id is not None:
+    update_data = data.model_dump(exclude_unset=True)
+
+    if "category_id" in update_data:
         r = await session.execute(
-            select(Category).where(Category.id == data.category_id)
+            select(Category).where(Category.id == update_data["category_id"])
         )
         if not r.scalar_one_or_none():
             logger.warning(
@@ -63,20 +61,21 @@ async def update_note(
                 extra={
                     "note_id": note.id,
                     "user_id": note.owner_id,
-                    "category_id": data.category_id,
+                    "category_id": update_data["category_id"],
                 },
             )
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Category does not exist",
             )
-        note.category_id = data.category_id
+
+    for field, value in update_data.items():
+        setattr(note, field, value)
 
     await session.commit()
     await session.refresh(note)
-
-    logger.info("update_note_ok", extra={"note_id": note.id, "user_id": note.owner_id})
     return note
+
 
 
 @router.delete("/{note_id}", status_code=status.HTTP_204_NO_CONTENT)

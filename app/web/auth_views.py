@@ -7,8 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
 from app.api.auth import get_user_by_email
-from app.api.utils.user_utils import normalize_email
-from app.core.limiting import limiter
+from app.api.user import normalize_email
 from app.core.security import hash_password, verify_password
 from app.db.models import User
 from app.db.session import get_session

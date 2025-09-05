@@ -1,20 +1,23 @@
 from __future__ import annotations
 
 import sys
-from logging.config import fileConfig
 from pathlib import Path
+from logging.config import fileConfig
+
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]  # /app
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 
 from sqlalchemy import engine_from_config, pool
-
 from alembic import context
+from app.db.models import Base
 
 config = context.config
 if config.config_file_name:
     fileConfig(config.config_file_name)
 
-sys.path.append(str(Path(__file__).resolve().parents[1]))
-
-from app.db.models import Base
 
 target_metadata = Base.metadata
 
